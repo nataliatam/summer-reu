@@ -32,7 +32,6 @@ def findShared(xlower, xupper, ylower, yupper):
     for i in range(len(quadrantX)):
         accountedFor = False
         j = i+1
-        #while j < (len(quadrantX)):
         for j in range(len(quadrantX)):
             if len(quadrantX) == 1:
                 Wireless = plt.Circle((quadrantX[i], quadrantY[i]), 5, fill = False) 
@@ -47,13 +46,15 @@ def findShared(xlower, xupper, ylower, yupper):
                     averageY = (quadrantY[i]+ quadrantY[j])/2
 
                     addNewWireless(averageX, averageY)
-            #j += 1
+                    finalLeaves.append((averageX, averageY))
+            
 
         # Puts wireless cell around UEs that have no others in range
         if not accountedFor:
                 newCell = plt.Circle((quadrantX[i], quadrantY[i]), wlR, fill = False) 
                 axes.add_artist(newCell)
 
+                finalLeaves.append((quadrantX[i], quadrantY[i]))
                 wirelessX.append(quadrantX[i])
                 wirelessY.append(quadrantY[i])
             
@@ -70,6 +71,8 @@ def addNewWireless(x, y):
 
     wirelessX.append(x)
     wirelessY.append(y)
+
+
 
 
 # Helper method to return the nearest point on the "fibre"
@@ -101,6 +104,7 @@ def makeWirelessPath():
                 newY = finalLeaves[i][1]+ wlR
                 while newY < min[1]:
                     addNewWireless(finalLeaves[i][0], newY)
+                    finalLeaves.append((finalLeaves[i][0], newY))
                     newY += wlR
             else:
                 newY = finalLeaves[i][1] - wlR
@@ -124,7 +128,6 @@ def removeRedundant(xlower, xupper, ylower, yupper):
     quadrantX = []
     quadrantY = []
     quadrant = []
-    toBeRemoved = []
 
     # Puts all wireless cell coordinates into temporary lists
     for i in range(len(wirelessX)):
@@ -134,8 +137,8 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             else:
                 quadrantX.append(wirelessX[i])
                 quadrantY.append(wirelessY[i])
-                quadrant.append([wirelessX[i],wirelessY[i]])
-   #print(quadrant)
+                quadrant.append([wirelessX[i], wirelessY[i]])
+   
     
     for i in range(len(quadrantX)- 1):
         accountedFor = False
@@ -147,31 +150,21 @@ def removeRedundant(xlower, xupper, ylower, yupper):
         mindist = 100
         j = i + 1
         while j < len(quadrantX):
-            # If only 1 UE in quadrant, denotes as a final leaf
-            if len(quadrantX) == 1:
-                finalLeavesX.append(quadrantX[i])
-                finalLeavesY.append(quadrantY[i])
-                finalLeaves.append(quadrantX[i], quadrantY[i])
-            else:
-                p = [quadrantX[i], quadrantY[i]]
-                # Finds closest pair p and q within certain distances, and 
-                if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 2*wlR:
-                    q = [quadrantX[j], quadrantY[j]]
-                    distpq = math.dist(p, q)
-                    if distpq <= 6*wlR and distpq <= mindist and p != q: 
-                        mindist = distpq
-                        pX = quadrantX[i] 
-                        pY = quadrantY[i] 
-                        qX = quadrantX[j] 
-                        qY = quadrantY[j] 
-                        accountedFor = True
-                else:
-                    finalLeavesX.append(quadrantX[i])
-                    finalLeavesY.append(quadrantY[i])
-                    finalLeaves.append((quadrantX[j], quadrantY[j]))
-                
+            p = [quadrantX[i], quadrantY[i]]
+            # Finds closest pair p and q within certain distances
+            if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 1*wlR:
+                q = [quadrantX[j], quadrantY[j]]
+                distpq = math.dist(p, q)
+                if distpq <= 6*wlR and distpq <= mindist and p != q: 
+                    mindist = distpq
+                    pX = quadrantX[i] 
+                    pY = quadrantY[i] 
+                    qX = quadrantX[j] 
+                    qY = quadrantY[j] 
+                    accountedFor = True
             j += 1
 
+        # If an acceptable close point found, add cell between them
         if accountedFor:
             averageX = (pX + qX)/2
             averageY = (pY+ qY)/2
@@ -182,6 +175,7 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             newCell = plt.Circle((averageX, averageY), wlR, fill = False) 
             axes.add_artist(newCell)
 
+            # Process to remove the further of 2 cells from final paths
             dist = []
             dist.append(math.dist((pX, pY), nearestAxis(pX, pY)))
             dist.append(math.dist((qX, qY), nearestAxis(qX, qY)))
@@ -190,43 +184,32 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             if minpos == 0:
                 x = pX
                 y = pY
-                toBeRemoved.append(j)
+                print(minpos)
+                print("Q:", (qX, qY))
+                print(finalLeaves)
+                if (qX, qY) in finalLeaves:
+                    print("removed", (qX, qY))
+                    finalLeaves.remove((qX, qY))
             else: 
                 x = qX
                 y = qY
-                toBeRemoved.append(i)
+                print(minpos)
+                print("P:", (pX, pY))
+                print(finalLeaves)
+                if (pX, pY) in finalLeaves:
+                    print("removed", (pX, pY))
+                    finalLeaves.remove((pX, pY))
 
             center = plt.Circle((x, y), 1,  color = 'purple', fill = False)
             axes.add_artist(center)
 
             newCell = plt.Circle((x, y), wlR, fill = False) 
             axes.add_artist(newCell)
-
-            finalLeavesX.append(x)
-            finalLeavesY.append(y)
-            finalLeaves.append((x, y))
-
-            #print("closer x:", quadrantX[i])
-            #print("closer y:", quadrantY[i])
-
-
-        else:
-            finalLeavesX.append(quadrantX[i])
-            finalLeavesY.append(quadrantY[i])
-            finalLeaves.append((quadrantX[i], quadrantY[i]))
-            #print("x:", quadrantX[i])
-            #print("y:", quadrantY[i])
         
-    
-        if len(toBeRemoved) > 0:
-            for k in range(len(toBeRemoved)):
-                if toBeRemoved[0] < len(quadrantX):
-                    if (quadrantX[toBeRemoved[0]],quadrantY[toBeRemoved[0]]) in finalLeaves:
-                        finalLeaves.remove((quadrantX[toBeRemoved[k]],quadrantY[toBeRemoved[k]]))
 
 
 figure, axes = plt.subplots()
-for x in range(18):
+for x in range(20):
     a = random.randint(1, 99)
     Lx.append(a)
     b = random.randint(1, 99)
@@ -242,24 +225,30 @@ plt.plot([0,100], [fourth,fourth], 'g', linewidth=3, markersize=5)
 Wired = plt.Circle((20, 40), 3, fill = False) 
 
 findShared(0, first, fourth, 100)
-findShared(first, second, fourth, 100)
-findShared(second, 100, fourth, 100)
-findShared(0, first, third, fourth)
-findShared(first, second, third, fourth)
-findShared(second, 100, third, fourth)
-findShared(0, first, 0, third)
-findShared(first, second, 0, third)
-findShared(second, 100, 0, third)
 
-'''removeRedundant(0, first, fourth, 100)
+findShared(first, second, fourth, 100)
+removeRedundant(0, first, fourth, 100)
+
+findShared(second, 100, fourth, 100)
 removeRedundant(first, second, fourth, 100)
+
+findShared(0, first, third, fourth)
 removeRedundant(second, 100, fourth, 100)
+
+findShared(first, second, third, fourth)
 removeRedundant(0, first, third, fourth)
-removeRedundant(first, second, third, fourth)
+
+findShared(second, 100, third, fourth)
 removeRedundant(second, 100, third, fourth)
+
+findShared(0, first, 0, third)
 removeRedundant(0, first, 0, third)
+
+findShared(first, second, 0, third)
 removeRedundant(first, second, 0, third)
-removeRedundant(second, 100, 0, third)'''
+
+findShared(second, 100, 0, third)
+removeRedundant(second, 100, 0, third)
 
 makeWirelessPath()
 
