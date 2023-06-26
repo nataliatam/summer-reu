@@ -188,8 +188,9 @@ def removeRedundant(xlower, xupper, ylower, yupper):
                 print("Q:", (qX, qY))
                 print(finalLeaves)
                 if (qX, qY) in finalLeaves:
-                    print("removed", (qX, qY))
-                    finalLeaves.remove((qX, qY))
+                    for i in range(finalLeaves.count((qX, qY))):
+                        finalLeaves.remove((qX, qY))
+                        print("removed", (qX, qY))
             else: 
                 x = qX
                 y = qY
@@ -197,8 +198,9 @@ def removeRedundant(xlower, xupper, ylower, yupper):
                 print("P:", (pX, pY))
                 print(finalLeaves)
                 if (pX, pY) in finalLeaves:
-                    print("removed", (pX, pY))
-                    finalLeaves.remove((pX, pY))
+                    for i in range(finalLeaves.count((pX, pY))):
+                        finalLeaves.remove((pX, pY))
+                        print("removed", (pX, pY))
 
             center = plt.Circle((x, y), 1,  color = 'purple', fill = False)
             axes.add_artist(center)
