@@ -7,7 +7,7 @@ second = 70
 third = 40
 fourth = 65
 
-wlR = 5
+wlR = 4
 
 Lx = []
 Ly = []
@@ -16,9 +16,13 @@ wirelessY = []
 finalLeavesX = [] 
 finalLeavesY = [] 
 finalLeaves = []
+numUEs = 20
+sharingUEs = 0
+numWireless = 0
 
 
 def findShared(xlower, xupper, ylower, yupper):
+    global sharingUEs, numWireless
     quadrantX = []
     quadrantY = []
 
@@ -34,9 +38,9 @@ def findShared(xlower, xupper, ylower, yupper):
         j = i+1
         for j in range(len(quadrantX)):
             if len(quadrantX) == 1:
-                Wireless = plt.Circle((quadrantX[i], quadrantY[i]), 5, fill = False) 
+                Wireless = plt.Circle((quadrantX[i], quadrantY[i]), wlR, fill = False) 
                 axes.add_artist(Wireless)
-                
+                numWireless += 1
             elif j != i:
                 p = [quadrantX[i], quadrantY[i]]
                 q = [quadrantX[j], quadrantY[j]]
@@ -47,6 +51,7 @@ def findShared(xlower, xupper, ylower, yupper):
 
                     addNewWireless(averageX, averageY)
                     finalLeaves.append((averageX, averageY))
+                    sharingUEs += 1
             
 
         # Puts wireless cell around UEs that have no others in range
@@ -57,12 +62,14 @@ def findShared(xlower, xupper, ylower, yupper):
                 finalLeaves.append((quadrantX[i], quadrantY[i]))
                 wirelessX.append(quadrantX[i])
                 wirelessY.append(quadrantY[i])
+                numWireless += 1
             
     quadrantX.clear()
     quadrantY.clear()
 
 # Helper method to draw wireless cell's range at a point
 def addNewWireless(x, y):
+    global numWireless
     center = plt.Circle((x, y), 1,  color = 'r')
     axes.add_artist(center)
 
@@ -71,6 +78,7 @@ def addNewWireless(x, y):
 
     wirelessX.append(x)
     wirelessY.append(y)
+    numWireless += 1
 
 
 
@@ -104,7 +112,6 @@ def makeWirelessPath():
                 newY = finalLeaves[i][1]+ wlR
                 while newY < min[1]:
                     addNewWireless(finalLeaves[i][0], newY)
-                    finalLeaves.append((finalLeaves[i][0], newY))
                     newY += wlR
             else:
                 newY = finalLeaves[i][1] - wlR
@@ -125,6 +132,7 @@ def makeWirelessPath():
 
 
 def removeRedundant(xlower, xupper, ylower, yupper):
+    global sharingUEs, numWireless
     quadrantX = []
     quadrantY = []
     quadrant = []
@@ -152,10 +160,10 @@ def removeRedundant(xlower, xupper, ylower, yupper):
         while j < len(quadrantX):
             p = [quadrantX[i], quadrantY[i]]
             # Finds closest pair p and q within certain distances
-            if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 1*wlR:
+            if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 0*wlR:
                 q = [quadrantX[j], quadrantY[j]]
                 distpq = math.dist(p, q)
-                if distpq <= 6*wlR and distpq <= mindist and p != q: 
+                if distpq <= 8*wlR and distpq <= mindist and p != q: 
                     mindist = distpq
                     pX = quadrantX[i] 
                     pY = quadrantY[i] 
@@ -174,6 +182,8 @@ def removeRedundant(xlower, xupper, ylower, yupper):
 
             newCell = plt.Circle((averageX, averageY), wlR, fill = False) 
             axes.add_artist(newCell)
+            numWireless += 1
+            sharingUEs += 1
 
             # Process to remove the further of 2 cells from final paths
             dist = []
@@ -184,34 +194,35 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             if minpos == 0:
                 x = pX
                 y = pY
-                print(minpos)
+                '''print(minpos)
                 print("Q:", (qX, qY))
-                print(finalLeaves)
+                print(finalLeaves)'''
                 if (qX, qY) in finalLeaves:
                     for i in range(finalLeaves.count((qX, qY))):
                         finalLeaves.remove((qX, qY))
-                        print("removed", (qX, qY))
+                        #print("removed", (qX, qY))
             else: 
                 x = qX
                 y = qY
-                print(minpos)
+                '''print(minpos)
                 print("P:", (pX, pY))
-                print(finalLeaves)
+                print(finalLeaves)'''
                 if (pX, pY) in finalLeaves:
                     for i in range(finalLeaves.count((pX, pY))):
                         finalLeaves.remove((pX, pY))
-                        print("removed", (pX, pY))
+                        #print("removed", (pX, pY))
 
             center = plt.Circle((x, y), 1,  color = 'purple', fill = False)
             axes.add_artist(center)
 
             newCell = plt.Circle((x, y), wlR, fill = False) 
             axes.add_artist(newCell)
+
         
 
 
 figure, axes = plt.subplots()
-for x in range(20):
+for x in range(numUEs):
     a = random.randint(1, 99)
     Lx.append(a)
     b = random.randint(1, 99)
@@ -227,18 +238,21 @@ plt.plot([0,100], [fourth,fourth], 'g', linewidth=3, markersize=5)
 Wired = plt.Circle((20, 40), 3, fill = False) 
 
 findShared(0, first, fourth, 100)
-
-findShared(first, second, fourth, 100)
 removeRedundant(0, first, fourth, 100)
 
-findShared(second, 100, fourth, 100)
+findShared(first, second, fourth, 100)
 removeRedundant(first, second, fourth, 100)
 
-findShared(0, first, third, fourth)
+findShared(second, 100, fourth, 100)
 removeRedundant(second, 100, fourth, 100)
 
-findShared(first, second, third, fourth)
+
+findShared(0, first, third, fourth)
 removeRedundant(0, first, third, fourth)
+
+
+findShared(first, second, third, fourth)
+removeRedundant(first, second, third, fourth)
 
 findShared(second, 100, third, fourth)
 removeRedundant(second, 100, third, fourth)
@@ -251,9 +265,18 @@ removeRedundant(first, second, 0, third)
 
 findShared(second, 100, 0, third)
 removeRedundant(second, 100, 0, third)
+print(finalLeaves)
 
 makeWirelessPath()
 
+print("---------------------------------------------------------------")
+print("Metrics:")
+print("Number of UEs:", numUEs)
+print("Number of Cells: ", numWireless)
+print("Number of UEs sharing a path: ", sharingUEs)
+area = numWireless * wlR * wlR * math.pi
+print("Area Coverage: ", area)
+print("Fractional Area Coverage: ", (area)/ (100 * 100))
 
 
 
