@@ -7,7 +7,7 @@ second = 70
 third = 40
 fourth = 65
 
-wlR = 4
+wlR = 5
 
 Lx = []
 Ly = []
@@ -16,7 +16,7 @@ wirelessY = []
 finalLeavesX = [] 
 finalLeavesY = [] 
 finalLeaves = []
-numUEs = 20
+numUEs = 40
 sharingUEs = 0
 numWireless = 0
 
@@ -38,9 +38,7 @@ def findShared(xlower, xupper, ylower, yupper):
         j = i+1
         for j in range(len(quadrantX)):
             if len(quadrantX) == 1:
-                Wireless = plt.Circle((quadrantX[i], quadrantY[i]), wlR, fill = False) 
-                axes.add_artist(Wireless)
-                numWireless += 1
+                break
             elif j != i:
                 p = [quadrantX[i], quadrantY[i]]
                 q = [quadrantX[j], quadrantY[j]]
@@ -79,7 +77,6 @@ def addNewWireless(x, y):
     wirelessX.append(x)
     wirelessY.append(y)
     numWireless += 1
-
 
 
 
@@ -131,7 +128,7 @@ def makeWirelessPath():
                     newX -= wlR
 
 
-def removeRedundant(xlower, xupper, ylower, yupper):
+def createSharedPaths(xlower, xupper, ylower, yupper):
     global sharingUEs, numWireless
     quadrantX = []
     quadrantY = []
@@ -147,7 +144,7 @@ def removeRedundant(xlower, xupper, ylower, yupper):
                 quadrantY.append(wirelessY[i])
                 quadrant.append([wirelessX[i], wirelessY[i]])
    
-    
+    print("quadrantX:", quadrantX)
     for i in range(len(quadrantX)- 1):
         accountedFor = False
         pX = 0
@@ -160,7 +157,7 @@ def removeRedundant(xlower, xupper, ylower, yupper):
         while j < len(quadrantX):
             p = [quadrantX[i], quadrantY[i]]
             # Finds closest pair p and q within certain distances
-            if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 0*wlR:
+            if math.dist(p, nearestAxis(quadrantX[i], quadrantY[i])) > 2*wlR:
                 q = [quadrantX[j], quadrantY[j]]
                 distpq = math.dist(p, q)
                 if distpq <= 8*wlR and distpq <= mindist and p != q: 
@@ -194,9 +191,9 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             if minpos == 0:
                 x = pX
                 y = pY
-                '''print(minpos)
+                print(minpos)
                 print("Q:", (qX, qY))
-                print(finalLeaves)'''
+                print(finalLeaves)
                 if (qX, qY) in finalLeaves:
                     for i in range(finalLeaves.count((qX, qY))):
                         finalLeaves.remove((qX, qY))
@@ -204,9 +201,9 @@ def removeRedundant(xlower, xupper, ylower, yupper):
             else: 
                 x = qX
                 y = qY
-                '''print(minpos)
+                print(minpos)
                 print("P:", (pX, pY))
-                print(finalLeaves)'''
+                print(finalLeaves)
                 if (pX, pY) in finalLeaves:
                     for i in range(finalLeaves.count((pX, pY))):
                         finalLeaves.remove((pX, pY))
@@ -217,6 +214,35 @@ def removeRedundant(xlower, xupper, ylower, yupper):
 
             newCell = plt.Circle((x, y), wlR, fill = False) 
             axes.add_artist(newCell)
+
+def removeRedundant(xlower, xupper, ylower, yupper):
+    global numWireless
+    quadrantX = []
+    quadrantY = []
+    quadrant = []
+
+    # Puts all wireless cell coordinates into temporary lists
+    for i in range(len(wirelessX)):
+        if xlower<= wirelessX[i] <= xupper and ylower <= wirelessY[i] <= yupper:
+            if quadrant.count([wirelessX[i], wirelessY[i]]) > 0:
+                break
+            else:
+                quadrantX.append(wirelessX[i])
+                quadrantY.append(wirelessY[i])
+                quadrant.append([wirelessX[i], wirelessY[i]])
+
+    for i in range(len(quadrantX)- 1):
+        j = i + 1
+        while j < len(quadrantX):
+            p = [quadrantX[i], quadrantY[i]]
+            q = [quadrantX[j], quadrantY[j]]
+            # Finds closest pair p and q within certain distances
+            if math.dist(p, q) < 1*wlR:
+                numWireless -= 1
+                newCell = plt.Circle(p, wlR, color = 'white', fill = False) 
+                axes.add_artist(newCell)
+            j += 1
+        
 
         
 
@@ -235,39 +261,45 @@ plt.plot([first, first], [0,100], 'g', linewidth=3, markersize=5)
 plt.plot([second,second], [0,100], 'g', linewidth=3, markersize=5)
 plt.plot([0,100], [third,third], 'g', linewidth=3, markersize=5)
 plt.plot([0,100], [fourth,fourth], 'g', linewidth=3, markersize=5)
-Wired = plt.Circle((20, 40), 3, fill = False) 
+
 
 findShared(0, first, fourth, 100)
-removeRedundant(0, first, fourth, 100)
-
 findShared(first, second, fourth, 100)
-removeRedundant(first, second, fourth, 100)
-
 findShared(second, 100, fourth, 100)
-removeRedundant(second, 100, fourth, 100)
-
-
 findShared(0, first, third, fourth)
-removeRedundant(0, first, third, fourth)
-
-
 findShared(first, second, third, fourth)
-removeRedundant(first, second, third, fourth)
-
 findShared(second, 100, third, fourth)
-removeRedundant(second, 100, third, fourth)
-
 findShared(0, first, 0, third)
-removeRedundant(0, first, 0, third)
-
 findShared(first, second, 0, third)
-removeRedundant(first, second, 0, third)
-
 findShared(second, 100, 0, third)
-removeRedundant(second, 100, 0, third)
+
+print("---------------------------------------------------------------")
+createSharedPaths(0, first, fourth, 100)
+print("---------------------------------------------------------------")
+createSharedPaths(first, second, fourth, 100)
+print("---------------------------------------------------------------")
+createSharedPaths(second, 100, fourth, 100)
+print("---------------------------------------------------------------")
+createSharedPaths(0, first, third, fourth)
+print("---------------------------------------------------------------")
+createSharedPaths(first, second, third, fourth)
+print("---------------------------------------------------------------")
+createSharedPaths(second, 100, third, fourth)
+print("---------------------------------------------------------------")
+createSharedPaths(0, first, 0, third)
+print("---------------------------------------------------------------")
+createSharedPaths(first, second, 0, third)
+print("---------------------------------------------------------------")
+createSharedPaths(second, 100, 0, third)
+print("---------------------------------------------------------------")
 print(finalLeaves)
 
 makeWirelessPath()
+
+removeRedundant(0, first, fourth, 100)
+removeRedundant(first, second, fourth, 100)
+removeRedundant(second, 100, fourth, 100)
+removeRedundant(0, first, third, fourth)
 
 print("---------------------------------------------------------------")
 print("Metrics:")
