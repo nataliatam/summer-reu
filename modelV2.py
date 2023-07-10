@@ -199,6 +199,29 @@ def makeWirelessPath():
                     newX -= wlR
 
 
+def removeCloseRedundants(xlower, xupper, ylower, yupper):
+    global sharingUEs, numWireless
+    tempquadrant = []
+
+    # Puts all wireless cell in quadrant into temporary list
+    for i in range(len(WirelessList)):
+        if xlower<= WirelessList[i].x <= xupper and ylower <= WirelessList[i].y <= yupper:
+            tempquadrant.append(WirelessList[i])
+    tempquadrant = [*set(tempquadrant)]
+
+    for i in range(len(tempquadrant)- 1):
+        j = i + 1
+        while j < len(tempquadrant):
+            p = [tempquadrant[i].x, tempquadrant[i].y]
+            q = [tempquadrant[j].x, tempquadrant[j].y]
+            # Finds closest pair p and q within certain distances
+            if (math.dist(p,q) < .2*wlR) and (tempquadrant[i] in WirelessList):
+                WirelessList.remove(tempquadrant[i])
+                print("removed")
+            j += 1
+    
+
+'''maybe have a sharing trait (t/f?) and then count at the end?'''
 
 '''------------------------------------------------------------------'''
 
@@ -245,10 +268,19 @@ WirelessList = [*set(WirelessList)]
 finalLeaves = [*set(finalLeaves)]
 
 makeWirelessPath()
+
+removeCloseRedundants(0, first, fourth, 100)
+removeCloseRedundants(first, second, fourth, 100)
+removeCloseRedundants(second, 100, fourth, 100)
+removeCloseRedundants(0, first, third, fourth)
+removeCloseRedundants(first, second, third, fourth)
+removeCloseRedundants(second, 100, third, fourth)
+removeCloseRedundants(0, first, 0, third)
+removeCloseRedundants(first, second, 0, third)
+removeCloseRedundants(second, 100, 0, third)
+
 drawCells()
 
-WirelessList = [*set(WirelessList)]
-finalLeaves = [*set(finalLeaves)]
 
 '''------------------------------------------------------------------'''
 
