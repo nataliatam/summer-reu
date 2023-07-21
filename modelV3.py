@@ -1,13 +1,17 @@
 import random
 import math
 import matplotlib.pyplot as plt
-from shapely.geometry import Point, Polygon, MultiPoint
+import geopandas as gpd
+from shapely.geometry import Point, Polygon, MultiPoint, LineString
 from shapely.ops import nearest_points as np
 
 first = 50
 second = 70
 third = 40
 fourth = 65
+streets = []
+intersections = []
+
 wlR = 4
 numUEs = 35
 sharingUEs = 0
@@ -17,29 +21,88 @@ UEList = []
 WirelessList = []
 finalLeaves = []
 
+
 '''------------------------------------------------------------------'''
 class WirelessCell:
     def __init__(self, x, y, type):
         self.x = x
         self.y = y
+        self.point = Point(x, y)
         self.type = type # types: SHARED/BLUE, PATH, NONE, PURPLE
 
 class UE:
     def __init__(self, x, y, sharing):
         self.x = x
         self.y = y
+        self.point = Point(x, y)
         self.sharing = False
 
 '''------------------------------------------------------------------'''
 
 # Helper function adding all points inside a polygon to a working list
-def tempListInPolygon(corners[]){
+def tempListInPolygon(corners):
+    tempquadrant = []
+    tempPoly = Polygon(corners)
     for i in range(len(WirelessList)):
-            if xlower<= WirelessList[i].x <= xupper and ylower <= WirelessList[i].y <= yupper:
-                tempquadrant.append(WirelessList[i])
-        
-        tempquadrant = [*set(tempquadrant)]
-}
+        if tempPoly.contains(WirelessList[i].point):
+            tempquadrant.add(WirelessList[i])
+    tempquadrant = [*set(tempquadrant)]    
+    return tempquadrant
+
+
+'''------------------------------------------------------------------'''
+
+
+# Given an (x, y) coordinate, return the closet fibre intersection (using math.dist)
+def closestIntersection(x, y):
+    closest = None
+    min = 100000
+    for pt in intersections:
+        temp = math.dist((x,y), pt)
+        if temp < min:
+            min = temp
+            closest = pt
+    return closest
+
+# Given an (x, y) coordinate, return the closet fibre intersection (using distance())
+def closestIntersection(x, y):
+    point = Point(x, y)
+    closest = None
+    min = 100000
+    for pt in intersections:
+        temp = point.distance(pt)
+        if temp < min:
+            min = temp
+            closest = pt
+    return closest
+
+
+
+'''------------------------------------------------------------------'''
+
+# Given an (x, y) coordinate, return the closet fibre intersection (using math.dist)
+def closestCell(x, y):
+    closest = None
+    min = 100000
+    for pt in WirelessList:
+        temp = math.dist((x,y), (pt.x,pt.y))
+        if temp < min:
+            min = temp
+            closest = pt
+    return closest
+
+# Given an (x, y) coordinate, return the closet fibre intersection (using distance())
+def closestIntersection(x, y):
+    point = Point(x, y)
+    closest = None
+    min = 100000
+    for pt in WirelessList:
+        temp = point.distance(pt.point)
+        if temp < min:
+            min = temp
+            closest = pt.point
+    return closest
+
 
 '''------------------------------------------------------------------'''
 
@@ -65,11 +128,6 @@ def nearestAxis(x, y):
         miny = fourth
     return [minx, miny]
 
-# Helper method to return the nearest point on the "fibre"
-def nearestPoint(x, y):
-    p = (x, y)
-    math.dist(p, )
-   
 
 
 def drawCells():
@@ -255,11 +313,14 @@ def removeCloseRedundants(xlower, xupper, ylower, yupper):
 
 '''------------------------------------------------------------------'''
 
-figure, axes = plt.subplots()
+figure, axes = plt.subplots(figsize=(6,6))
 plt.plot([first, first], [0,100], 'g', linewidth=3, markersize=5)
 plt.plot([second,second], [0,100], 'g', linewidth=3, markersize=5)
-plt.plot([0,100], [third,third], 'g', linewidth=3, markersize=5)
+#plt.plot([0,100], [third,third], 'g', linewidth=3, markersize=5)
 plt.plot([0,100], [fourth,fourth], 'g', linewidth=3, markersize=5)
+
+streets = LineString([(0,third), (100, third)])
+plt.plot(*streets.xy, 'g', linewidth=3, markersize=5)
 
 for x in range(numUEs):
     a = random.randint(1, 99)
