@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from shapely.geometry import Point, Polygon, MultiPoint, LineString
-from shapely.ops import nearest_points as np
+from shapely.ops import nearest_points
 
 first = 50
 second = 70
@@ -50,7 +50,7 @@ def tempListInPolygon(corners):
     return tempquadrant
 
 
-'''------------------------------------------------------------------'''
+'''------------------------------------------------------------------
 
 
 # Given an (x, y) coordinate, return the closet fibre intersection (using math.dist)
@@ -62,9 +62,9 @@ def closestIntersection(x, y):
         if temp < min:
             min = temp
             closest = pt
-    return closest
+    return closest'''
 
-# Given an (x, y) coordinate, return the closet fibre intersection (using distance())
+# Given an (x, y) coordinate, return the closest fibre intersection (using distance())
 def closestIntersection(x, y):
     point = Point(x, y)
     closest = None
@@ -76,11 +76,20 @@ def closestIntersection(x, y):
             closest = pt
     return closest
 
+# Given an (x, y) coordinate, return the closest fibre point (using distance())
+def closestFiber(x, y):
+    poly = Polygon(intersections)
+    point = Point(x, y)
+    # The points are returned in the same order as the input geometries:
+    p1 = nearest_points(poly, point)
+    return p1
+
+#https://stackoverflow.com/questions/33311616/find-coordinate-of-the-closest-point-on-polygon-in-shapely
 
 
-'''------------------------------------------------------------------'''
+'''------------------------------------------------------------------
 
-# Given an (x, y) coordinate, return the closet fibre intersection (using math.dist)
+# Given an (x, y) coordinate, return the closest Cell intersection (using math.dist)
 def closestCell(x, y):
     closest = None
     min = 100000
@@ -89,9 +98,9 @@ def closestCell(x, y):
         if temp < min:
             min = temp
             closest = pt
-    return closest
+    return closest'''
 
-# Given an (x, y) coordinate, return the closet fibre intersection (using distance())
+# Given an (x, y) coordinate, return the closest Cell intersection (using distance())
 def closestIntersection(x, y):
     point = Point(x, y)
     closest = None
@@ -198,7 +207,7 @@ def createSharedPaths(xlower, xupper, ylower, yupper):
         if xlower<= WirelessList[i].x <= xupper and ylower <= WirelessList[i].y <= yupper:
             tempquadrant.append(WirelessList[i])
     tempquadrant = [*set(tempquadrant)]
-    print(tempquadrant)
+    # print(tempquadrant)
 
     for i in range(len(tempquadrant)- 1):
         accountedFor = False
@@ -260,7 +269,7 @@ def createSharedPaths(xlower, xupper, ylower, yupper):
 
 # Creates a line of Wireless cells to the nearest point on the "fibre" 
 # for all existing wireless cells
-def makeWirelessPath():
+'''def makeWirelessPath():
     for i in range(len(finalLeaves)):
         min = nearestAxis(finalLeaves[i][0], finalLeaves[i][1])
         if (min[0] == finalLeaves[i][0]):
@@ -284,7 +293,28 @@ def makeWirelessPath():
                 newX = finalLeaves[i][0] - wlR
                 while newX > min[0]:
                     addWireless(newX, finalLeaves[i][1], "PATH")
-                    newX -= wlR
+                    newX -= wlR'''
+
+# Creates a line of Wireless cells to the nearest point on the "fibre" 
+# for all existing wireless cells
+def makeWirelessPath():
+    for i in range(len(finalLeaves)):
+        '''min = closestFiber(finalLeaves[i][0], finalLeaves[i][1])
+        rise = min.y - finalLeaves[i][1]
+        run = min.x - finalLeaves[i][0]'''
+        min = nearestAxis(finalLeaves[i][0], finalLeaves[i][1])
+        rise = min[1] - finalLeaves[i][1]
+        run = min[0] - finalLeaves[i][0]
+        denom = math.sqrt(pow(rise,2) + pow(run,2))
+        if denom != 0:
+            factor = wlR/denom
+
+            newX = finalLeaves[i][0]
+            newY = finalLeaves[i][1]
+            while abs(newY - min[1]) >= wlR:
+                newX = newX + (run * factor)
+                newY = newY + (rise * factor)
+                addWireless(newX, newY, "PATH")
 
 
 def removeCloseRedundants(xlower, xupper, ylower, yupper):
@@ -308,8 +338,6 @@ def removeCloseRedundants(xlower, xupper, ylower, yupper):
                 print("removed")
             j += 1
     
-
-'''maybe have a sharing trait (t/f?) and then count at the end?'''
 
 '''------------------------------------------------------------------'''
 
@@ -345,7 +373,7 @@ for i in range(len(WirelessList)):
 finalLeaves = [*set(finalLeaves)]
 
 
-createSharedPaths(0, first, fourth, 100)
+'''createSharedPaths(0, first, fourth, 100)
 createSharedPaths(first, second, fourth, 100)
 createSharedPaths(second, 100, fourth, 100)
 createSharedPaths(0, first, third, fourth)
@@ -353,14 +381,14 @@ createSharedPaths(first, second, third, fourth)
 createSharedPaths(second, 100, third, fourth)
 createSharedPaths(0, first, 0, third)
 createSharedPaths(first, second, 0, third)
-createSharedPaths(second, 100, 0, third)
+createSharedPaths(second, 100, 0, third)'''
 
 WirelessList = [*set(WirelessList)]
 finalLeaves = [*set(finalLeaves)]
 
 makeWirelessPath()
 
-'''removeCloseRedundants(0, first, fourth, 100)
+removeCloseRedundants(0, first, fourth, 100)
 removeCloseRedundants(first, second, fourth, 100)
 removeCloseRedundants(second, 100, fourth, 100)
 removeCloseRedundants(0, first, third, fourth)
@@ -368,7 +396,7 @@ removeCloseRedundants(first, second, third, fourth)
 removeCloseRedundants(second, 100, third, fourth)
 removeCloseRedundants(0, first, 0, third)
 removeCloseRedundants(first, second, 0, third)
-removeCloseRedundants(second, 100, 0, third)'''
+removeCloseRedundants(second, 100, 0, third)
 WirelessList = [*set(WirelessList)]
 drawCells()
 

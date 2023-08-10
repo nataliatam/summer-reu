@@ -30,7 +30,7 @@ class UE:
         self.y = y
         self.sharing = False
 
-'''------------------------------------------------------------------'''
+'''------------------------------------------------------------------
 
 # Helper function adding all points inside a polygon to a working list
 def tempListInPolygon(corners[]){
@@ -41,7 +41,7 @@ def tempListInPolygon(corners[]){
         tempquadrant = [*set(tempquadrant)]
 }
 
-'''------------------------------------------------------------------'''
+------------------------------------------------------------------'''
 
 def addWireless(x, y, type):
     temp = WirelessCell(x, y, type)
