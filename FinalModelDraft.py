@@ -1,6 +1,7 @@
 ''' 
 NextG Networks Model Project
 Author: Natalia Tam
+Github Repo: https://github.com/nataliatam/summer-reu/tree/main
 '''
 
 import random
