@@ -21,8 +21,8 @@ The program runs as such:
     4. createSharedPaths(): determines if reasonably distanced pairs of
     cells could share a path -- if so, places a new wireless cell in 
     between the existing cells. Then, it looks at which cell in the 
-    sharing pair is further from a road; it "unmarks/removes" that 
-    further cell
+    sharing path is closest to a road; it "unmarks/removes" the cells 
+    that are further than it (so only the closest one stays "marked")
 
     4. makeWirelessPath(): takes all "marked" cells from the previous 
     steps, and creates a perpendicular path of wireless cells to the 

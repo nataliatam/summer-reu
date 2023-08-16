@@ -12,7 +12,7 @@ import requests
 
 latlon_meter_conversion = 111139 # 1 degree = 111,139m
 wlR = 100 / latlon_meter_conversion # radius of wireless cell in meters
-numUEs = 5 # number of UEs
+numUEs = 8 # number of UEs
 
 UEList = [] # The list of all the UEs and their data
 WirelessList = [] # List of all the wireless cells and their data
@@ -224,8 +224,8 @@ def main():
     global WirelessList
 
     # boundaries of the parcel of land (currently set to Princeton's campus)
-    min_lat, max_lat = 40.333, 40.345
-    min_lon, max_lon = -74.667, -74.657
+    min_lat, max_lat = 40.339513, 40.352104
+    min_lon, max_lon = -74.666225, -74.652546
 
     # Generate 'numUEs' random UEs and append to running UE list
     for x in range(numUEs):
