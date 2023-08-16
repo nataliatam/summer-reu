@@ -323,10 +323,3 @@ print("Number of UEs: ", numUEs)
 print("Number of Cells: ", len(WirelessList))
 print("Number of UEs sharing a path: ", sharingUEs)
 print("Num of UEs sharing a path: ", shared)
-
-axes.set_aspect('1')
-
-plt.xlim(0, 100)
-plt.ylim(0, 100)
-plt.title( 'Cell Towers' )
-plt.show()
