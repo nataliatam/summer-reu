@@ -7,12 +7,13 @@ Github Repo: https://github.com/nataliatam/summer-reu/tree/main
 import random
 import math
 import requests
+import gmplot
 
 '''------------------------------------------------------------------'''
 
 latlon_meter_conversion = 111139 # 1 degree = 111,139m
-wlR = 100 / latlon_meter_conversion # radius of wireless cell in meters
-numUEs = 8 # number of UEs
+wlR = 50 / latlon_meter_conversion # radius of wireless cell in meters
+numUEs = 15 # number of UEs
 
 UEList = [] # The list of all the UEs and their data
 WirelessList = [] # List of all the wireless cells and their data
@@ -130,7 +131,7 @@ def createSharedPaths(xlower, xupper, ylower, yupper):
 
             # Finds closest pair Cell1 and Cell1 that is further than range
             # of 1 cell to fiber, but within 3 cell hops
-            if tempquadrant[i].closestRoadDistance > 2*wlR:
+            if tempquadrant[i].closestRoadDistance > 2*wlR*latlon_meter_conversion:
                 q = [tempquadrant[j].x, tempquadrant[j].y] # Cell2
                 distpq = math.dist(p, q)
                 if distpq <= 6*wlR and distpq <= mindist and p != q: 
@@ -227,15 +228,20 @@ def main():
     min_lat, max_lat = 40.339513, 40.352104
     min_lon, max_lon = -74.666225, -74.652546
 
+    UELats = []
+    UELons = []
+
     # Generate 'numUEs' random UEs and append to running UE list
     for x in range(numUEs):
         randomUE = generateRandomUEs(min_lat, max_lat, min_lon, max_lon)
+        UELats.append(randomUE.x)
+        UELons.append(randomUE.y)
         UEList.append(randomUE)
     
     # Places initial Wireless Cells on singular UEs or between pairs of UEs within 1 cell's reach
     findShared(min_lat, max_lat, min_lon, max_lon)
     WirelessList = list(set(WirelessList)) # Intended to remove duplicate cells
-    finalLeaves = WirelessList # Copies all current wireless cells into preliminary finalLeaves list
+    finalLeaves = WirelessList.copy() # Copies all current wireless cells into preliminary finalLeaves list
 
     # OSRM API endpoint
     osrm_endpoint = "http://router.project-osrm.org"
@@ -253,24 +259,30 @@ def main():
         print(x)
     
     print('\n -----------------------------------------------------------')
-    print('-----------TESTING: PRINTS ALL FINAL LEAF CELLS AND THEIR INFO-----------')
 
     # Places cells to be shared between pairs of reasonably distanced cells
     createSharedPaths(min_lat, max_lat, min_lon, max_lon)
+
+    print('-----------TESTING: PRINTS ALL FINAL LEAF CELLS AND THEIR INFO-----------')
 
     finalLeaves = list(set(finalLeaves)) # intended to remove duplicates
     for x in finalLeaves:
         print(x)
         print('\n')
+
+    print('-----------------------------------------------------------')
     
     # Final step: places direct path of wireless cells to fiber from all
     # cells in "finalLeaves" list (that aren't already in range of fiber)
     makeWirelessPath(finalLeaves)
 
-    print('-----------------------------------------------------------')
     print('-----------TESTING: PRINTS ALL CELLS AND THEIR INFO---------')
 
+    lats = []
+    lons = []
     for x in WirelessList:
+        lats.append(x.x)
+        lons.append(x.y)
         print(x)
         print('\n')
 
@@ -280,6 +292,21 @@ def main():
     print("Metrics:")
     print("Number of UEs: ", numUEs)
     print("Number of Cells: ", len(WirelessList))
+
+
+
+
+    # First two parameters are the geogrphical coordinates 
+    # i.e., Latitude and Longitude and the zoom resolution  
+    firstGmap = gmplot.GoogleMapPlotter((min_lat + max_lat)/2, (min_lon + max_lon)/2, 15)  
+    
+    # Scattering map  
+    firstGmap.scatter(lats, lons, '#FF0000', size = 50, marker = True) 
+    firstGmap.scatter(UELats, UELons, 'cornflowerblue', size = 50, marker = True) 
+    
+    # location where we want to save the file  
+    firstGmap.draw("firstmap.html")  
+
 
 
 if __name__ == "__main__":

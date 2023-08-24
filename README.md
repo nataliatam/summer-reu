@@ -34,3 +34,6 @@ They are just the last child cell of the perpendicular path of cells
 that are eventually going to be laid down (not the actual last leaf in the
 overall path though).
 
+    5. Plotting the UEs in blue and the other recommended wireless cells
+    in red on Google Maps using markers!
+
