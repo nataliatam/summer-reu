@@ -3,7 +3,8 @@ This program takes 3 user inputs: the desrired number of UEs observed,
 the coordinates of the land we're examining, and the radius of the 
 wireless cells' reach. The output of the program is a suggested list of 
 where to place cells to ensure coverage for each UE while also creating 
-shared paths of wireless cells to minimize supposed future costs.
+shared paths of wireless cells to minimize supposed future costs, and an
+accompanying HTML file of a Google Map visual model.
 
 The program runs as such:
 
