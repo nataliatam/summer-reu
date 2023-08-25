@@ -13,7 +13,7 @@ streets = []
 intersections = []
 
 wlR = 4
-numUEs = 35
+numUEs = 20
 sharingUEs = 0
 numWireless = 0
 

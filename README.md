@@ -1,8 +1,9 @@
 # summer-reu
 This program takes 3 user inputs: the desrired number of UEs observed, 
 the coordinates of the land we're examining, and the radius of the 
-wireless cells' reach. The output of the program is a suggested list of where to place cells to ensure coverage for each UE while also creating shared paths 
-of wireless cells to minimize supposed future costs.
+wireless cells' reach. The output of the program is a suggested list of 
+where to place cells to ensure coverage for each UE while also creating 
+shared paths of wireless cells to minimize supposed future costs.
 
 The program runs as such:
 
@@ -34,6 +35,6 @@ They are just the last child cell of the perpendicular path of cells
 that are eventually going to be laid down (not the actual last leaf in the
 overall path though).
 
-    5. Plotting the UEs in blue and the other recommended wireless cells
-    in red on Google Maps using markers!
+    5. Creates an HMTL file of the UEs in blue and the other recommended 
+    wireless cells in red on Google Maps using markers!
 

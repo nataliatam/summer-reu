@@ -13,7 +13,7 @@ import gmplot
 
 latlon_meter_conversion = 111139 # 1 degree = 111,139m
 wlR = 50 / latlon_meter_conversion # radius of wireless cell in meters
-numUEs = 15 # number of UEs
+numUEs = 20 # number of UEs
 
 UEList = [] # The list of all the UEs and their data
 WirelessList = [] # List of all the wireless cells and their data
@@ -225,8 +225,8 @@ def main():
     global WirelessList
 
     # boundaries of the parcel of land (currently set to Princeton's campus)
-    min_lat, max_lat = 40.339513, 40.352104
-    min_lon, max_lon = -74.666225, -74.652546
+    min_lat, max_lat = 40.32, 40.352104
+    min_lon, max_lon = -74.658, -74.65
 
     UELats = []
     UELons = []
